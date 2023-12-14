@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Generate Machine Asset Relation Dataset</title>
+    <meta name="description" content="" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    {% comment %}
+    <link rel="stylesheet" href="/static/styles.css" />
+    {% endcomment %}
+  </head>
+
+  <body>
+    {% comment %} Navbar {% endcomment %}
+    <nav class="navbar navbar-dark bg-dark justify-content-center">
+      <span class="navbar-brand mb-0 fs-1"
+        >Generate Machine Job Time Dataset</span
+      >
+    </nav>
+    {% comment %} Input by user {% endcomment %}
+    <div class="text-center mt-3 mb-5">
+      <h2>
+        Input the following data and generate the Dataset containing the time
+        and IDs of machines and jobs.
+      </h2>
+    </div>
+    <div>
+      <form method="post" action="">
+        {% csrf_token %}
+        <div class="row row-cols-auto justify-content-center">
+          <div class="col-sm-3">
+            <input
+              type="number"
+              name="num_of_machines"
+              class="form-control"
+              id="floatingInputGrid"
+              placeholder="Number of Machines:"
+            />
+          </div>
+          <div class="col-sm-3">
+            <input
+              type="number"
+              name="num_of_jobs"
+              class="form-control"
+              id="floatingInputGrid"
+              placeholder="Number of Jobs:"
+            />
+          </div>
+        </div>
+        <p class="text-center fs-4 my-4">
+          Please input the CSV (Comma Separated Values) files as instructed.
+        </p>
+        <div class="input-group row justify-content-center mt-3">
+          <div class="col-sm-4">
+            <label for="inputGroupFile01" class="form-label"
+              >Attach .csv file of the time required by every job on it's
+              required machines in ascending orders. (jobs as rows and machines
+              as columns.)</label
+            >
+            <input
+              type="file"
+              name="time_per_job_per_machine"
+              class="form-control"
+              id="inputGroupFile01"
+              aria-describedby="inputGroupFileAddon01"
+              aria-label="Upload"
+            />
+          </div>
+          <div class="col-sm-4">
+            <label for="inputGroupFile02" class="form-label"
+              >Attach .csv file of every job and all the machines in ascending
+              orders specifying the order of machining for every job with
+              respect to the machines. (jobs as rows and machines as
+              columns.)</label
+            >
+            <input
+              type="file"
+              name="sequence_per_job"
+              class="form-control"
+              id="inputGroupFile02"
+              aria-describedby="inputGroupFileAddon02"
+              aria-label="Upload"
+            />
+          </div>
+        </div>
+        <div class="input-group row justify-content-center mt-5">
+          <div class="col-sm-4">
+            <label for="inputGroupFile01" class="form-label"
+              >Attach .csv file of the production size of each of the Jobs.
+            </label>
+            <input
+              type="file"
+              name="production_size"
+              class="form-control"
+              id="inputGroupFile01"
+              aria-describedby="inputGroupFileAddon01"
+              aria-label="Upload"
+            />
+          </div>
+        </div>
+        <button
+          class="btn btn-outline-secondary"
+          type="submit"
+          style="margin-left: 48vw; margin-top: 15px; margin-bottom: 15px"
+        >
+          Submit
+        </button>
+      </form>
+    </div>
+    {% comment %} Example {% endcomment %}
+    <p class="text-center fs-5">Below are the examples for the inputs.</p>
+    <p class="text-center fs-6">
+      Suppose there are four (4) jobs and five (5) machines.
+    </p>
+    <div class="row justify-content-center">
+      <div class="col-sm-4 mx-5">
+        <label for="table01"> For time required by machines per job.</label>
+        <table class="table table01">
+          <thead>
+            <tr>
+              <th scope="col">Jobs/Machine</th>
+              <th scope="col">Machine 1</th>
+              <th scope="col">Machine 2</th>
+              <th scope="col">Machine 3</th>
+              <th scope="col">Machine 4</th>
+              <th scope="col">Machine 5</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>10</td>
+              <td>5</td>
+              <td>7</td>
+              <td>-</td>
+              <td>9</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>8</td>
+              <td>13</td>
+              <td>8</td>
+              <td>3</td>
+              <td>17</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>5</td>
+              <td>14</td>
+              <td>9</td>
+              <td>11</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <th scope="row">4</th>
+              <td>-</td>
+              <td>8</td>
+              <td>5</td>
+              <td>6</td>
+              <td>9</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-sm-4 mx-5">
+        <label for="table02"> For machining sequence per job.</label>
+        <table class="table table02">
+          <thead>
+            <tr>
+              <th scope="col">Jobs/Machine</th>
+              <th scope="col">Machine 1</th>
+              <th scope="col">Machine 2</th>
+              <th scope="col">Machine 3</th>
+              <th scope="col">Machine 4</th>
+              <th scope="col">Machine 5</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>1</td>
+              <td>2</td>
+              <td>3</td>
+              <td>-</td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>1</td>
+              <td>3</td>
+              <td>2</td>
+              <td>5</td>
+              <td>4</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>2</td>
+              <td>1</td>
+              <td>3</td>
+              <td>4</td>
+              <td>-</td>
+            </tr>
+            <tr>
+              <th scope="row">4</th>
+              <td>-</td>
+              <td>3</td>
+              <td>4</td>
+              <td>1</td>
+              <td>2</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-sm-4 mx-5 my-5">
+        <label for="table03"> For production size of jobs.</label>
+        <table class="table table03">
+          <thead>
+            <tr>
+              <th scope="col">Jobs</th>
+              <th scope="col">Production Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>10</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>250</td>
+            </tr>
+            <tr>
+              <th scope="row">3</th>
+              <td>500</td>
+            </tr>
+            <tr>
+              <th scope="row">4</th>
+              <td>80</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+      integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
+      integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
