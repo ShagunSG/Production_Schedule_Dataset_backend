@@ -1,4 +1,4 @@
-from django.shortcuts import render, HttpResponseRedirect
+from django.shortcuts import render, HttpResponseRedirect, HttpResponse
 from collections import deque
 import pandas as pd
 import numpy as np
@@ -47,7 +47,7 @@ def index(request):
                 else:
                     j += 1
             SequenceLength.append(len(buffer))
-            print(len(buffer))
+            # print(len(buffer))
             machiningSequence.append(buffer)
         def completionTime(jobID, sequenceNumber):
             time = np.random.normal(loc=machiningSequence[jobID][sequenceNumber][1],scale=0.0)
@@ -63,14 +63,14 @@ def index(request):
 
         for i in range(int(number_of_jobs)):
             buffer = deque()
-            print("i = ", i)
+            # print("i = ", i)
             for j in range(int(SequenceLength[i])):
-                print("j = ", j)
+                # print("j = ", j)
                 machineID = machiningSequence[i][j][0]
                 buffer.append((machineID, completionTime(i, j)))
-                print(buffer)
+                # print(buffer)
             bufferList.append(buffer)
-        print(bufferList)
+        # print(bufferList)
         entity_id = []
         product_id = []
         start_time = []
@@ -83,15 +83,15 @@ def index(request):
                 global finTime
                 finTime = 0
                 with lockList[item[0]]:
-                    print(f"Entity {item[0] + 1} started consuming item {jobID + 1}")
+                    # print(f"Entity {item[0] + 1} started consuming item {jobID + 1}")
                     iniTime = finTime
                     sleep(item[1]/4)
                     finTime = iniTime + item[1]
-                    print(f"Entity {item[0] + 1} finished consuming item {jobID + 1}")
+                    # print(f"Entity {item[0] + 1} finished consuming item {jobID + 1}")
                     end_time.append(finTime)
                     start_time.append(iniTime)
                     TimeElapsed = (finTime-iniTime)
-                    print(TimeElapsed)
+                    # print(TimeElapsed)
                     time_elapsed.append(TimeElapsed)
                     product_id.append(jobID + 1)
                     entity_id.append(item[0] + 1)
@@ -126,4 +126,7 @@ def index(request):
         csvFilePath = 'data.csv'
         with open(csvFilePath, 'w') as file:
             file.write(csvData)
-        return render(request, 'index.html')
+        # return render(request, 'index.html')
+        response = HttpResponse(csvData, content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="data.csv"'
+        return response
