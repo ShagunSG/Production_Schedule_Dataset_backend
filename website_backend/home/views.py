@@ -33,6 +33,9 @@ def index(request):
         prod_size = pd.read_csv(production_size.file)
         machiningSequence = []
         SequenceLength = []
+        productionSize = 0
+        for i in range (int(number_of_jobs)):
+            productionSize += prod_size.iloc[i,1]
         for i in range (int(number_of_jobs)):
             buffer = deque()
             j = 1
@@ -47,7 +50,6 @@ def index(request):
                 else:
                     j += 1
             SequenceLength.append(len(buffer))
-            # print(len(buffer))
             machiningSequence.append(buffer)
         def completionTime(jobID, sequenceNumber):
             time = np.random.normal(loc=machiningSequence[jobID][sequenceNumber][1],scale=0.0)
@@ -63,57 +65,47 @@ def index(request):
 
         for i in range(int(number_of_jobs)):
             buffer = deque()
-            # print("i = ", i)
-            for j in range(int(SequenceLength[i])):
-                # print("j = ", j)
+            l = 1
+            for j in range(SequenceLength[i]):
                 machineID = machiningSequence[i][j][0]
                 buffer.append((machineID, completionTime(i, j)))
-                # print(buffer)
             bufferList.append(buffer)
-        # print(bufferList)
+            while(l<prod_size.iloc[i,1]):
+                buffer_cp = buffer.copy()
+                bufferList.append(buffer_cp)
+                l += 1
         entity_id = []
         product_id = []
         start_time = []
         end_time = []
         time_elapsed = []
 
+        global finTime
+        finTime = 0
+
+        # Consumer thread function
         def entity(jobID, buffer):
+            global finTime
             while(len(buffer)):
                 item = buffer.popleft()
-                global finTime
-                finTime = 0
                 with lockList[item[0]]:
-                    # print(f"Entity {item[0] + 1} started consuming item {jobID + 1}")
                     iniTime = finTime
                     sleep(item[1]/4)
                     finTime = iniTime + item[1]
-                    # print(f"Entity {item[0] + 1} finished consuming item {jobID + 1}")
                     end_time.append(finTime)
                     start_time.append(iniTime)
                     TimeElapsed = (finTime-iniTime)
-                    # print(TimeElapsed)
                     time_elapsed.append(TimeElapsed)
                     product_id.append(jobID + 1)
                     entity_id.append(item[0] + 1)
-                    if (bool(prod_size.iloc[jobID,1]>1)):
-                        l=1
-                        while (l<prod_size.iloc[jobID,1]):
-                            entity_id.append(item[0] + 1)
-                            product_id.append(jobID + 1)
-                            iniTime = finTime
-                            start_time.append(iniTime)
-                            finTime = iniTime + item[1]
-                            end_time.append(finTime)
-                            TimeElapsed = (finTime-iniTime)
-                            time_elapsed.append(TimeElapsed)
-                            l += 1
 
         # Create and start consumer threads
         entityThreads = []
         for i in range(int(number_of_jobs)):
-            t = threading.Thread(target = entity, args=(i,bufferList[i]))
-            entityThreads.append(t)
-            t.start()
+            for j in range(prod_size.iloc[i,1]):
+                t = threading.Thread(target = entity, args=(i,bufferList[j]))
+                entityThreads.append(t)
+                t.start()
 
         # Wait for all threads to finish
         for t in entityThreads:
