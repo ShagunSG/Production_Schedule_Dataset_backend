@@ -94,7 +94,7 @@ def index(request):
                 # print(item, "\n")
                 with lockList[item[1]]:
                     iniTime = finTime
-                    sleep(item[2])
+                    sleep(item[2]/4)
                     finTime = iniTime + item[2]
                     end_time.append(finTime)
                     start_time.append(iniTime)
