@@ -91,7 +91,6 @@ def index(request):
             global finTime
             while(len(buffer)):
                 item = buffer.popleft()
-                # print(item, "\n")
                 with lockList[item[1]]:
                     iniTime = finTime
                     sleep(item[2]/4)
@@ -108,7 +107,6 @@ def index(request):
         entityThreads = []
         for i in range(int(number_of_jobs)):
             for j in range(prod_size.iloc[i,1]):
-                print(j, "BufferList: ", bufferList[i][j], "\n")
                 t = threading.Thread(target = entity, args=(bufferList[i][j], j+1))
                 entityThreads.append(t)
                 t.start()
