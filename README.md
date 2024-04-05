@@ -1,1 +1,2 @@
-# Production_Schedule_Dataset_backend
+# Factory Simulator
+This website is built with a Django backend. The main motive of building the website is to be able to generate the jobs-machines interaction dataset with time-stamps of every interaction for the ease of analysing their relations on one another. It uses the Producer-Consumer problem and uses threads to consecutively call the machines by the jobs. The user has to input .csv files of the times spent per job on a machine, the sequence of machines a job requires for work, and the production size of the jobs, using which the code will build a .csv file of the output which will be automatically downloaded in the user's device.
