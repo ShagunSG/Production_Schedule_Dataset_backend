@@ -64,18 +64,21 @@ def index(request):
             consumerState.append(0)
 
         for i in range(int(number_of_jobs)):
+            bufferList_i = []
             buffer = deque()
             l = 1
             for j in range(SequenceLength[i]):
                 machineID = machiningSequence[i][j][0]
-                buffer.append((machineID, completionTime(i, j)))
-            bufferList.append(buffer)
+                buffer.append((i+1, machineID, completionTime(i, j)))
+            bufferList_i.append(buffer)
             while(l<prod_size.iloc[i,1]):
                 buffer_cp = buffer.copy()
-                bufferList.append(buffer_cp)
+                bufferList_i.append(buffer_cp)
                 l += 1
+            bufferList.append(bufferList_i)
         entity_id = []
-        product_id = []
+        job_id = []
+        product_id=[]
         start_time = []
         end_time = []
         time_elapsed = []
@@ -84,26 +87,29 @@ def index(request):
         finTime = 0
 
         # Consumer thread function
-        def entity(jobID, buffer):
+        def entity(buffer, jobID):
             global finTime
             while(len(buffer)):
                 item = buffer.popleft()
-                with lockList[item[0]]:
+                # print(item, "\n")
+                with lockList[item[1]]:
                     iniTime = finTime
-                    sleep(item[1]/4)
-                    finTime = iniTime + item[1]
+                    sleep(item[2])
+                    finTime = iniTime + item[2]
                     end_time.append(finTime)
                     start_time.append(iniTime)
                     TimeElapsed = (finTime-iniTime)
                     time_elapsed.append(TimeElapsed)
-                    product_id.append(jobID + 1)
-                    entity_id.append(item[0] + 1)
+                    product_id.append(item[0])
+                    job_id.append(jobID)
+                    entity_id.append(item[1] + 1)
 
         # Create and start consumer threads
         entityThreads = []
         for i in range(int(number_of_jobs)):
             for j in range(prod_size.iloc[i,1]):
-                t = threading.Thread(target = entity, args=(i,bufferList[j]))
+                print(j, "BufferList: ", bufferList[i][j], "\n")
+                t = threading.Thread(target = entity, args=(bufferList[i][j], j+1))
                 entityThreads.append(t)
                 t.start()
 
@@ -111,8 +117,8 @@ def index(request):
         for t in entityThreads:
             t.join()
 
-        list_data = list(zip(product_id,entity_id,start_time,end_time,time_elapsed))
-        data = pd.DataFrame(list_data, columns = ['Product ID', 'Entity ID', 'Start Time', 'End Time', 'Time Elapsed'])
+        list_data = list(zip(product_id, job_id, entity_id,start_time,end_time,time_elapsed))
+        data = pd.DataFrame(list_data, columns = ['Product ID', 'Job ID', 'Entity ID', 'Start Time', 'End Time', 'Time Elapsed'])
 
         csvData = data.to_csv(index=False)
         csvFilePath = 'data.csv'
