@@ -93,7 +93,7 @@ def index(request):
                 item = buffer.popleft()
                 with lockList[item[1]]:
                     iniTime = finTime
-                    sleep(item[2]/4)
+                    sleep(item[2]/100)
                     finTime = iniTime + item[2]
                     end_time.append(finTime)
                     start_time.append(iniTime)
